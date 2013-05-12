@@ -1,0 +1,788 @@
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;--------------------------------------------------------
+                      00002 ; File Created by SDCC : free open source ANSI-C Compiler
+                      00003 ; Version 3.2.1 #8392 (Jan 21 2013) (Linux)
+                      00004 ; This file was generated Sat Mar  9 22:02:56 2013
+                      00005 ;--------------------------------------------------------
+                      00006 ; PIC16 port for the Microchip 16-bit core micros
+                      00007 ;--------------------------------------------------------
+                      00008         list    p=18f2550
+                      00009         radix   dec
+                      00010 
+                      00011 
+                      00012 ;--------------------------------------------------------
+                      00013 ; public variables in this module
+                      00014 ;--------------------------------------------------------
+  0000                00015         global  _epap_in
+  0000                00016         global  _epap_out
+  0000                00017         global  _epapin_init
+  0000                00018         global  _epapout_init
+  0000                00019         global  _IOsetDigital
+  0000                00020         global  _IOsetRemap
+  0000                00021         global  _pinguino_main
+Error[113]  : Symbol not previously defined (_setup)
+  0000                00022         global  _setup
+Error[113]  : Symbol not previously defined (_loop)
+  0000                00023         global  _loop
+  0000                00024         global  _high_priority_isr
+  0000                00025         global  _low_priority_isr
+                      00026 
+                      00027 ;--------------------------------------------------------
+                      00028 ; extern variables in this module
+                      00029 ;--------------------------------------------------------
+  0000                00030         extern  _UFRMLbits
+  0000                00031         extern  _UFRMHbits
+  0000                00032         extern  _UIRbits
+  0000                00033         extern  _UIEbits
+  0000                00034         extern  _UEIRbits
+  0000                00035         extern  _UEIEbits
+  0000                00036         extern  _USTATbits
+  0000                00037         extern  _UCONbits
+  0000                00038         extern  _UADDRbits
+  0000                00039         extern  _UCFGbits
+  0000                00040         extern  _UEP0bits
+  0000                00041         extern  _UEP1bits
+  0000                00042         extern  _UEP2bits
+  0000                00043         extern  _UEP3bits
+  0000                00044         extern  _UEP4bits
+  0000                00045         extern  _UEP5bits
+  0000                00046         extern  _UEP6bits
+  0000                00047         extern  _UEP7bits
+  0000                00048         extern  _UEP8bits
+  0000                00049         extern  _UEP9bits
+  0000                00050         extern  _UEP10bits
+  0000                00051         extern  _UEP11bits
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000                00052         extern  _UEP12bits
+  0000                00053         extern  _UEP13bits
+  0000                00054         extern  _UEP14bits
+  0000                00055         extern  _UEP15bits
+  0000                00056         extern  _PORTAbits
+  0000                00057         extern  _PORTBbits
+  0000                00058         extern  _PORTCbits
+  0000                00059         extern  _PORTEbits
+  0000                00060         extern  _LATAbits
+  0000                00061         extern  _LATBbits
+  0000                00062         extern  _LATCbits
+  0000                00063         extern  _DDRAbits
+  0000                00064         extern  _TRISAbits
+  0000                00065         extern  _DDRBbits
+  0000                00066         extern  _TRISBbits
+  0000                00067         extern  _DDRCbits
+  0000                00068         extern  _TRISCbits
+  0000                00069         extern  _OSCTUNEbits
+  0000                00070         extern  _PIE1bits
+  0000                00071         extern  _PIR1bits
+  0000                00072         extern  _IPR1bits
+  0000                00073         extern  _PIE2bits
+  0000                00074         extern  _PIR2bits
+  0000                00075         extern  _IPR2bits
+  0000                00076         extern  _EECON1bits
+  0000                00077         extern  _RCSTAbits
+  0000                00078         extern  _TXSTAbits
+  0000                00079         extern  _T3CONbits
+  0000                00080         extern  _CMCONbits
+  0000                00081         extern  _CVRCONbits
+  0000                00082         extern  _CCP1ASbits
+  0000                00083         extern  _ECCP1ASbits
+  0000                00084         extern  _CCP1DELbits
+  0000                00085         extern  _ECCP1DELbits
+  0000                00086         extern  _BAUDCONbits
+  0000                00087         extern  _BAUDCTLbits
+  0000                00088         extern  _CCP2CONbits
+  0000                00089         extern  _CCP1CONbits
+  0000                00090         extern  _ADCON2bits
+  0000                00091         extern  _ADCON1bits
+  0000                00092         extern  _ADCON0bits
+  0000                00093         extern  _SSPCON2bits
+  0000                00094         extern  _SSPCON1bits
+  0000                00095         extern  _SSPSTATbits
+  0000                00096         extern  _T2CONbits
+  0000                00097         extern  _T1CONbits
+  0000                00098         extern  _RCONbits
+  0000                00099         extern  _WDTCONbits
+  0000                00100         extern  _HLVDCONbits
+  0000                00101         extern  _LVDCONbits
+  0000                00102         extern  _OSCCONbits
+  0000                00103         extern  _T0CONbits
+  0000                00104         extern  _STATUSbits
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000                00105         extern  _INTCON3bits
+  0000                00106         extern  _INTCON2bits
+  0000                00107         extern  _INTCONbits
+  0000                00108         extern  _STKPTRbits
+  0000                00109         extern  _UFRM
+  0000                00110         extern  _UFRML
+  0000                00111         extern  _UFRMH
+  0000                00112         extern  _UIR
+  0000                00113         extern  _UIE
+  0000                00114         extern  _UEIR
+  0000                00115         extern  _UEIE
+  0000                00116         extern  _USTAT
+  0000                00117         extern  _UCON
+  0000                00118         extern  _UADDR
+  0000                00119         extern  _UCFG
+  0000                00120         extern  _UEP0
+  0000                00121         extern  _UEP1
+  0000                00122         extern  _UEP2
+  0000                00123         extern  _UEP3
+  0000                00124         extern  _UEP4
+  0000                00125         extern  _UEP5
+  0000                00126         extern  _UEP6
+  0000                00127         extern  _UEP7
+  0000                00128         extern  _UEP8
+  0000                00129         extern  _UEP9
+  0000                00130         extern  _UEP10
+  0000                00131         extern  _UEP11
+  0000                00132         extern  _UEP12
+  0000                00133         extern  _UEP13
+  0000                00134         extern  _UEP14
+  0000                00135         extern  _UEP15
+  0000                00136         extern  _PORTA
+  0000                00137         extern  _PORTB
+  0000                00138         extern  _PORTC
+  0000                00139         extern  _PORTE
+  0000                00140         extern  _LATA
+  0000                00141         extern  _LATB
+  0000                00142         extern  _LATC
+  0000                00143         extern  _DDRA
+  0000                00144         extern  _TRISA
+  0000                00145         extern  _DDRB
+  0000                00146         extern  _TRISB
+  0000                00147         extern  _DDRC
+  0000                00148         extern  _TRISC
+  0000                00149         extern  _OSCTUNE
+  0000                00150         extern  _PIE1
+  0000                00151         extern  _PIR1
+  0000                00152         extern  _IPR1
+  0000                00153         extern  _PIE2
+  0000                00154         extern  _PIR2
+  0000                00155         extern  _IPR2
+  0000                00156         extern  _EECON1
+  0000                00157         extern  _EECON2
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000                00158         extern  _EEDATA
+  0000                00159         extern  _EEADR
+  0000                00160         extern  _RCSTA
+  0000                00161         extern  _TXSTA
+  0000                00162         extern  _TXREG
+  0000                00163         extern  _RCREG
+  0000                00164         extern  _SPBRG
+  0000                00165         extern  _SPBRGH
+  0000                00166         extern  _T3CON
+  0000                00167         extern  _TMR3
+  0000                00168         extern  _TMR3L
+  0000                00169         extern  _TMR3H
+  0000                00170         extern  _CMCON
+  0000                00171         extern  _CVRCON
+  0000                00172         extern  _CCP1AS
+  0000                00173         extern  _ECCP1AS
+  0000                00174         extern  _CCP1DEL
+  0000                00175         extern  _ECCP1DEL
+  0000                00176         extern  _BAUDCON
+  0000                00177         extern  _BAUDCTL
+  0000                00178         extern  _CCP2CON
+  0000                00179         extern  _CCPR2
+  0000                00180         extern  _CCPR2L
+  0000                00181         extern  _CCPR2H
+  0000                00182         extern  _CCP1CON
+  0000                00183         extern  _CCPR1
+  0000                00184         extern  _CCPR1L
+  0000                00185         extern  _CCPR1H
+  0000                00186         extern  _ADCON2
+  0000                00187         extern  _ADCON1
+  0000                00188         extern  _ADCON0
+  0000                00189         extern  _ADRES
+  0000                00190         extern  _ADRESL
+  0000                00191         extern  _ADRESH
+  0000                00192         extern  _SSPCON2
+  0000                00193         extern  _SSPCON1
+  0000                00194         extern  _SSPSTAT
+  0000                00195         extern  _SSPADD
+  0000                00196         extern  _SSPBUF
+  0000                00197         extern  _T2CON
+  0000                00198         extern  _PR2
+  0000                00199         extern  _TMR2
+  0000                00200         extern  _T1CON
+  0000                00201         extern  _TMR1
+  0000                00202         extern  _TMR1L
+  0000                00203         extern  _TMR1H
+  0000                00204         extern  _RCON
+  0000                00205         extern  _WDTCON
+  0000                00206         extern  _HLVDCON
+  0000                00207         extern  _LVDCON
+  0000                00208         extern  _OSCCON
+  0000                00209         extern  _T0CON
+  0000                00210         extern  _TMR0
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000                00211         extern  _TMR0L
+  0000                00212         extern  _TMR0H
+  0000                00213         extern  _STATUS
+  0000                00214         extern  _FSR2L
+  0000                00215         extern  _FSR2H
+  0000                00216         extern  _PLUSW2
+  0000                00217         extern  _PREINC2
+  0000                00218         extern  _POSTDEC2
+  0000                00219         extern  _POSTINC2
+  0000                00220         extern  _INDF2
+  0000                00221         extern  _BSR
+  0000                00222         extern  _FSR1L
+  0000                00223         extern  _FSR1H
+  0000                00224         extern  _PLUSW1
+  0000                00225         extern  _PREINC1
+  0000                00226         extern  _POSTDEC1
+  0000                00227         extern  _POSTINC1
+  0000                00228         extern  _INDF1
+  0000                00229         extern  _WREG
+  0000                00230         extern  _FSR0L
+  0000                00231         extern  _FSR0H
+  0000                00232         extern  _PLUSW0
+  0000                00233         extern  _PREINC0
+  0000                00234         extern  _POSTDEC0
+  0000                00235         extern  _POSTINC0
+  0000                00236         extern  _INDF0
+  0000                00237         extern  _INTCON3
+  0000                00238         extern  _INTCON2
+  0000                00239         extern  _INTCON
+  0000                00240         extern  _PROD
+  0000                00241         extern  _PRODL
+  0000                00242         extern  _PRODH
+  0000                00243         extern  _TABLAT
+  0000                00244         extern  _TBLPTR
+  0000                00245         extern  _TBLPTRL
+  0000                00246         extern  _TBLPTRH
+  0000                00247         extern  _TBLPTRU
+  0000                00248         extern  _PC
+  0000                00249         extern  _PCL
+  0000                00250         extern  _PCLATH
+  0000                00251         extern  _PCLATU
+  0000                00252         extern  _STKPTR
+  0000                00253         extern  _TOS
+  0000                00254         extern  _TOSL
+  0000                00255         extern  _TOSH
+  0000                00256         extern  _TOSU
+                      00257 
+                      00258 ;--------------------------------------------------------
+                      00259 ;       Equates to used internal registers
+                      00260 ;--------------------------------------------------------
+  00000FD8            00261 STATUS  equ     0xfd8
+  00000FFA            00262 PCLATH  equ     0xffa
+  00000FFB            00263 PCLATU  equ     0xffb
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  00000FE0            00264 BSR     equ     0xfe0
+  00000FE9            00265 FSR0L   equ     0xfe9
+  00000FEA            00266 FSR0H   equ     0xfea
+  00000FE1            00267 FSR1L   equ     0xfe1
+  00000FD9            00268 FSR2L   equ     0xfd9
+  00000FE5            00269 POSTDEC1        equ     0xfe5
+  00000FE4            00270 PREINC1 equ     0xfe4
+  00000FF3            00271 PRODL   equ     0xff3
+  00000FF4            00272 PRODH   equ     0xff4
+                      00273 
+                      00274 ;--------------------------------------------------------
+                      00275 ; global & static initialisations
+                      00276 ;--------------------------------------------------------
+                      00277 ; ; Starting pCode block
+                      00278 S_main__high_priority_isr       code    0X002020
+002020                00279 _high_priority_isr:
+                      00280 ;       .line   167; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  void high_priori
+                            ty_isr(void) __interrupt 1
+002020 CFD8 FFE5      00281         MOVFF   STATUS, POSTDEC1
+002024 CFE0 FFE5      00282         MOVFF   BSR, POSTDEC1
+002028 6EE5           00283         MOVWF   POSTDEC1
+00202A CFF3 FFE5      00284         MOVFF   PRODL, POSTDEC1
+00202E CFF4 FFE5      00285         MOVFF   PRODH, POSTDEC1
+002032 CFE9 FFE5      00286         MOVFF   FSR0L, POSTDEC1
+002036 CFEA FFE5      00287         MOVFF   FSR0H, POSTDEC1
+00203A CFFA FFE5      00288         MOVFF   PCLATH, POSTDEC1
+00203E CFFB FFE5      00289         MOVFF   PCLATU, POSTDEC1
+                      00290 ;       .line   220; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  }
+002042 CFE4 FFFB      00291         MOVFF   PREINC1, PCLATU
+002046 CFE4 FFFA      00292         MOVFF   PREINC1, PCLATH
+00204A CFE4 FFEA      00293         MOVFF   PREINC1, FSR0H
+00204E CFE4 FFE9      00294         MOVFF   PREINC1, FSR0L
+002052 CFE4 FFF4      00295         MOVFF   PREINC1, PRODH
+002056 CFE4 FFF3      00296         MOVFF   PREINC1, PRODL
+00205A 50E4           00297         MOVF    PREINC1, W
+00205C CFE4 FFE0      00298         MOVFF   PREINC1, BSR
+002060 CFE4 FFD8      00299         MOVFF   PREINC1, STATUS
+002064 0010           00300         RETFIE  
+                      00301 
+                      00302 ; ; Starting pCode block for absolute section
+                      00303 ; ;-----------------------------------------
+                      00304 S_main_ivec_0x1_high_priority_isr       code    0X000008
+000008                00305 ivec_0x1_high_priority_isr:
+000008 EF00 F000      00306         GOTO    _high_priority_isr
+                      00307 
+                      00308 ; ; Starting pCode block
+                      00309 S_main__low_priority_isr        code    0X004000
+004000                00310 _low_priority_isr:
+                      00311 ;       .line   229; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  void low_priorit
+                            y_isr(void) __interrupt 2
+004000 CFD8 FFE5      00312         MOVFF   STATUS, POSTDEC1
+004004 CFE0 FFE5      00313         MOVFF   BSR, POSTDEC1
+004008 6EE5           00314         MOVWF   POSTDEC1
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00400A CFF3 FFE5      00315         MOVFF   PRODL, POSTDEC1
+00400E CFF4 FFE5      00316         MOVFF   PRODH, POSTDEC1
+004012 CFE9 FFE5      00317         MOVFF   FSR0L, POSTDEC1
+004016 CFEA FFE5      00318         MOVFF   FSR0H, POSTDEC1
+00401A CFFA FFE5      00319         MOVFF   PCLATH, POSTDEC1
+00401E CFFB FFE5      00320         MOVFF   PCLATU, POSTDEC1
+                      00321 ;       .line   247; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  }
+004022 CFE4 FFFB      00322         MOVFF   PREINC1, PCLATU
+004026 CFE4 FFFA      00323         MOVFF   PREINC1, PCLATH
+00402A CFE4 FFEA      00324         MOVFF   PREINC1, FSR0H
+00402E CFE4 FFE9      00325         MOVFF   PREINC1, FSR0L
+004032 CFE4 FFF4      00326         MOVFF   PREINC1, PRODH
+004036 CFE4 FFF3      00327         MOVFF   PREINC1, PRODL
+00403A 50E4           00328         MOVF    PREINC1, W
+00403C CFE4 FFE0      00329         MOVFF   PREINC1, BSR
+004040 CFE4 FFD8      00330         MOVFF   PREINC1, STATUS
+004044 0010           00331         RETFIE  
+                      00332 
+                      00333 ; ; Starting pCode block for absolute section
+                      00334 ; ;-----------------------------------------
+                      00335 S_main_ivec_0x2_low_priority_isr        code    0X000018
+000018                00336 ivec_0x2_low_priority_isr:
+000018 EF00 F000      00337         GOTO    _low_priority_isr
+                      00338 
+                      00339 ; I code from now on!
+                      00340 ; ; Starting pCode block
+                      00341 S_main__pinguino_main   code
+000000                00342 _pinguino_main:
+                      00343 ;       .line   96; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c   RCON   = 0x80;  
+                                          // Enable priority levels on interrupts
+000000 0E80           00344         MOVLW   0x80
+000002 6E??           00345         MOVWF   _RCON
+                      00346 ;       .line   108; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  IOsetDigital();
+000004 EC?? F0??      00347         CALL    _IOsetDigital
+                      00348 ;       .line   109; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  IOsetRemap();
+000008 EC?? F0??      00349         CALL    _IOsetRemap
+                      00350 ;       .line   144; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  setup();
+Error[113]  : Symbol not previously defined (_setup)
+Error[113]  : Symbol not previously defined (_setup)
+00000C EC00 F000      00351         CALL    _setup
+000010                00352 _00136_DS_:
+                      00353 ;       .line   155; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c  loop();
+Error[113]  : Symbol not previously defined (_loop)
+Error[113]  : Symbol not previously defined (_loop)
+000010 EC00 F000      00354         CALL    _loop
+000014 D???           00355         BRA     _00136_DS_
+000016 0012           00356         RETURN  
+                      00357 
+                      00358 ; ; Starting pCode block
+                      00359 S_main__IOsetRemap      code
+000000                00360 _IOsetRemap:
+                      00361 ;       .line   157; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c  void IOs
+                            etRemap(void)
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000000 CFD9 FFE5      00362         MOVFF   FSR2L, POSTDEC1
+000004 CFE1 FFD9      00363         MOVFF   FSR1L, FSR2L
+000008 0000           00364         nop 
+00000A CFE4 FFD9      00365         MOVFF   PREINC1, FSR2L
+00000E 0012           00366         RETURN  
+                      00367 
+                      00368 ; ; Starting pCode block
+                      00369 S_main__IOsetDigital    code
+000000                00370 _IOsetDigital:
+                      00371 ;       .line   46; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   ADCON1 =
+                             0x0F;                          // AN0 to AN12 Digital I/O
+000000 0E0F           00372         MOVLW   0x0f
+000002 6E??           00373         MOVWF   _ADCON1
+                      00374 ;       .line   47; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   CMCON = 
+                            0x07;               // Comparators as Digital I/O
+000004 0E07           00375         MOVLW   0x07
+000006 6E??           00376         MOVWF   _CMCON
+                      00377 ;       .line   50; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   TRISA = 
+                            0x00;
+000008 6A??           00378         CLRF    _TRISA
+                      00379 ;       .line   51; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   TRISB = 
+                            0x00;
+00000A 6A??           00380         CLRF    _TRISB
+                      00381 ;       .line   52; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   TRISC = 
+                            0x00;
+00000C 6A??           00382         CLRF    _TRISC
+                      00383 ;       .line   59; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   LATA  = 
+                            0x00;
+00000E 6A??           00384         CLRF    _LATA
+                      00385 ;       .line   60; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   LATB  = 
+                            0x00;
+000010 6A??           00386         CLRF    _LATB
+                      00387 ;       .line   61; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/p8/pinguino/core/io.c   LATC  = 
+                            0x00;
+000012 6A??           00388         CLRF    _LATC
+000014 0012           00389         RETURN  
+                      00390 
+                      00391 ; ; Starting pCode block
+                      00392 S_main__epapout_init    code
+000000                00393 _epapout_init:
+                      00394 ;       .line   59; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c   void epapout_ini
+                            t() { return; }
+000000 0012           00395         RETURN  
+                      00396 
+                      00397 ; ; Starting pCode block
+                      00398 S_main__epapin_init     code
+000000                00399 _epapin_init:
+                      00400 ;       .line   58; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c   void epapin_init
+                            ()  { return; }
+000000 0012           00401         RETURN  
+                      00402 
+                      00403 ; ; Starting pCode block
+                      00404 S_main__epap_out        code
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000000                00405 _epap_out:
+                      00406 ;       .line   57; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c   void epap_out() 
+                                { return; }
+000000 0012           00407         RETURN  
+                      00408 
+                      00409 ; ; Starting pCode block
+                      00410 S_main__epap_in code
+000000                00411 _epap_in:
+                      00412 ;       .line   56; /home/yeison/Documentos/python/apps/pinguinoIDE/x.4/source/main.c   void epap_in()  
+                                { return; }
+000000 0012           00413         RETURN  
+                      00414 
+                      00415 
+                      00416 
+                      00417 ; Statistics:
+                      00418 ; code size:      214 (0x00d6) bytes ( 0.16%)
+                      00419 ;                 107 (0x006b) words
+                      00420 ; udata size:       0 (0x0000) bytes ( 0.00%)
+                      00421 ; access size:      0 (0x0000) bytes
+                      00422 
+                      00423 
+                      00424         end
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE
+
+BSR                               00000FE0
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1L                             00000FE1
+FSR2L                             00000FD9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+POSTDEC1                          00000FE5
+PREINC1                           00000FE4
+PRODH                             00000FF4
+PRODL                             00000FF3
+STATUS                            00000FD8
+_00136_DS_                        00000010
+_ADCON0                           00000000
+_ADCON0bits                       00000000
+_ADCON1                           00000000
+_ADCON1bits                       00000000
+_ADCON2                           00000000
+_ADCON2bits                       00000000
+_ADRES                            00000000
+_ADRESH                           00000000
+_ADRESL                           00000000
+_BAUDCON                          00000000
+_BAUDCONbits                      00000000
+_BAUDCTL                          00000000
+_BAUDCTLbits                      00000000
+_BSR                              00000000
+_CCP1AS                           00000000
+_CCP1ASbits                       00000000
+_CCP1CON                          00000000
+_CCP1CONbits                      00000000
+_CCP1DEL                          00000000
+_CCP1DELbits                      00000000
+_CCP2CON                          00000000
+_CCP2CONbits                      00000000
+_CCPR1                            00000000
+_CCPR1H                           00000000
+_CCPR1L                           00000000
+_CCPR2                            00000000
+_CCPR2H                           00000000
+_CCPR2L                           00000000
+_CMCON                            00000000
+_CMCONbits                        00000000
+_CVRCON                           00000000
+_CVRCONbits                       00000000
+_DDRA                             00000000
+_DDRAbits                         00000000
+_DDRB                             00000000
+_DDRBbits                         00000000
+_DDRC                             00000000
+_DDRCbits                         00000000
+_ECCP1AS                          00000000
+_ECCP1ASbits                      00000000
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_ECCP1DEL                         00000000
+_ECCP1DELbits                     00000000
+_EEADR                            00000000
+_EECON1                           00000000
+_EECON1bits                       00000000
+_EECON2                           00000000
+_EEDATA                           00000000
+_FSR0H                            00000000
+_FSR0L                            00000000
+_FSR1H                            00000000
+_FSR1L                            00000000
+_FSR2H                            00000000
+_FSR2L                            00000000
+_HLVDCON                          00000000
+_HLVDCONbits                      00000000
+_INDF0                            00000000
+_INDF1                            00000000
+_INDF2                            00000000
+_INTCON                           00000000
+_INTCON2                          00000000
+_INTCON2bits                      00000000
+_INTCON3                          00000000
+_INTCON3bits                      00000000
+_INTCONbits                       00000000
+_IOsetDigital                     00000000
+_IOsetRemap                       00000000
+_IPR1                             00000000
+_IPR1bits                         00000000
+_IPR2                             00000000
+_IPR2bits                         00000000
+_LATA                             00000000
+_LATAbits                         00000000
+_LATB                             00000000
+_LATBbits                         00000000
+_LATC                             00000000
+_LATCbits                         00000000
+_LVDCON                           00000000
+_LVDCONbits                       00000000
+_OSCCON                           00000000
+_OSCCONbits                       00000000
+_OSCTUNE                          00000000
+_OSCTUNEbits                      00000000
+_PC                               00000000
+_PCL                              00000000
+_PCLATH                           00000000
+_PCLATU                           00000000
+_PIE1                             00000000
+_PIE1bits                         00000000
+_PIE2                             00000000
+_PIE2bits                         00000000
+_PIR1                             00000000
+_PIR1bits                         00000000
+_PIR2                             00000000
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_PIR2bits                         00000000
+_PLUSW0                           00000000
+_PLUSW1                           00000000
+_PLUSW2                           00000000
+_PORTA                            00000000
+_PORTAbits                        00000000
+_PORTB                            00000000
+_PORTBbits                        00000000
+_PORTC                            00000000
+_PORTCbits                        00000000
+_PORTE                            00000000
+_PORTEbits                        00000000
+_POSTDEC0                         00000000
+_POSTDEC1                         00000000
+_POSTDEC2                         00000000
+_POSTINC0                         00000000
+_POSTINC1                         00000000
+_POSTINC2                         00000000
+_PR2                              00000000
+_PREINC0                          00000000
+_PREINC1                          00000000
+_PREINC2                          00000000
+_PROD                             00000000
+_PRODH                            00000000
+_PRODL                            00000000
+_RCON                             00000000
+_RCONbits                         00000000
+_RCREG                            00000000
+_RCSTA                            00000000
+_RCSTAbits                        00000000
+_SPBRG                            00000000
+_SPBRGH                           00000000
+_SSPADD                           00000000
+_SSPBUF                           00000000
+_SSPCON1                          00000000
+_SSPCON1bits                      00000000
+_SSPCON2                          00000000
+_SSPCON2bits                      00000000
+_SSPSTAT                          00000000
+_SSPSTATbits                      00000000
+_STATUS                           00000000
+_STATUSbits                       00000000
+_STKPTR                           00000000
+_STKPTRbits                       00000000
+_T0CON                            00000000
+_T0CONbits                        00000000
+_T1CON                            00000000
+_T1CONbits                        00000000
+_T2CON                            00000000
+_T2CONbits                        00000000
+_T3CON                            00000000
+_T3CONbits                        00000000
+_TABLAT                           00000000
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_TBLPTR                           00000000
+_TBLPTRH                          00000000
+_TBLPTRL                          00000000
+_TBLPTRU                          00000000
+_TMR0                             00000000
+_TMR0H                            00000000
+_TMR0L                            00000000
+_TMR1                             00000000
+_TMR1H                            00000000
+_TMR1L                            00000000
+_TMR2                             00000000
+_TMR3                             00000000
+_TMR3H                            00000000
+_TMR3L                            00000000
+_TOS                              00000000
+_TOSH                             00000000
+_TOSL                             00000000
+_TOSU                             00000000
+_TRISA                            00000000
+_TRISAbits                        00000000
+_TRISB                            00000000
+_TRISBbits                        00000000
+_TRISC                            00000000
+_TRISCbits                        00000000
+_TXREG                            00000000
+_TXSTA                            00000000
+_TXSTAbits                        00000000
+_UADDR                            00000000
+_UADDRbits                        00000000
+_UCFG                             00000000
+_UCFGbits                         00000000
+_UCON                             00000000
+_UCONbits                         00000000
+_UEIE                             00000000
+_UEIEbits                         00000000
+_UEIR                             00000000
+_UEIRbits                         00000000
+_UEP0                             00000000
+_UEP0bits                         00000000
+_UEP1                             00000000
+_UEP10                            00000000
+_UEP10bits                        00000000
+_UEP11                            00000000
+_UEP11bits                        00000000
+_UEP12                            00000000
+_UEP12bits                        00000000
+_UEP13                            00000000
+_UEP13bits                        00000000
+_UEP14                            00000000
+_UEP14bits                        00000000
+_UEP15                            00000000
+_UEP15bits                        00000000
+_UEP1bits                         00000000
+gpasm-1.0.0 #932 (Jan 21 2013) /home/yeison/D   3-9-2013  22:02:56          PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_UEP2                             00000000
+_UEP2bits                         00000000
+_UEP3                             00000000
+_UEP3bits                         00000000
+_UEP4                             00000000
+_UEP4bits                         00000000
+_UEP5                             00000000
+_UEP5bits                         00000000
+_UEP6                             00000000
+_UEP6bits                         00000000
+_UEP7                             00000000
+_UEP7bits                         00000000
+_UEP8                             00000000
+_UEP8bits                         00000000
+_UEP9                             00000000
+_UEP9bits                         00000000
+_UFRM                             00000000
+_UFRMH                            00000000
+_UFRMHbits                        00000000
+_UFRML                            00000000
+_UFRMLbits                        00000000
+_UIE                              00000000
+_UIEbits                          00000000
+_UIR                              00000000
+_UIRbits                          00000000
+_USTAT                            00000000
+_USTATbits                        00000000
+_WDTCON                           00000000
+_WDTCONbits                       00000000
+_WREG                             00000000
+__18F2550                         00000001
+_epap_in                          00000000
+_epap_out                         00000000
+_epapin_init                      00000000
+_epapout_init                     00000000
+_high_priority_isr                00002020
+_low_priority_isr                 00004000
+_pinguino_main                    00000000
+ivec_0x1_high_priority_isr        00000008
+ivec_0x2_low_priority_isr         00000018
+
+Errors   :     6
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+
