@@ -281,7 +281,7 @@ class uploader8(baseUploader):
             first 5 bytes are for block description (BOOT_CMD, BOOT_CMD_LEN and BOOT_ADDR)
             data block size should be of DATABLOCKSIZE bytes
             total length is then DATABLOCKSIZE + 5 """
-        usbBuf = [0] * self.MAXPACKETSIZE
+        usbBuf = [0xFF] * self.MAXPACKETSIZE
         # command code
         usbBuf[self.BOOT_CMD] = self.WRITE_FLASH_CMD 
         # size of block
@@ -291,7 +291,9 @@ class uploader8(baseUploader):
         usbBuf[self.BOOT_ADDR_HI] = (address >> 8 ) & 0xFF
         usbBuf[self.BOOT_ADDR_UP] = (address >> 16) & 0xFF
         # add data to the packet
+        #self.txtWrite(hex(address))
         for i in range(len(datablock)):
+            #self.txtWrite(hex(datablock[i]))
             usbBuf[self.BOOT_DATA_START + i] = datablock[i]
         # write data packet on usb device
         #print usbBuf
@@ -363,16 +365,15 @@ class uploader8(baseUploader):
                 old_address = address
                 #print "max address =", max_address
 
-        # max_address must be divisible by self.BLOCKSIZE
-        #max_address = max_address + self.BLOCKSIZE - (max_address % self.BLOCKSIZE)        <= ERROR
-        max_address = max_address + 64 - (max_address % 64)
-        #print self.board.memstart, max_address, self.board.memend    
+        # max_address must be divisible by self.DATABLOCKSIZE
+        # ----------------------------------------------------------------------
 
-        # fill data sequence with 0xFF
+        max_address = max_address + self.DATABLOCKSIZE - (max_address % self.DATABLOCKSIZE)
+
+        # pre-fill data sequence with 0xFF
         # ----------------------------------------------------------------------
 
         for i in range(max_address - self.board.memstart):
-        #for i in range(max_address + 64 - self.board.memstart):
             data.append(0xFF)
 
         # 2nd pass : parse bytes from line into data
@@ -415,7 +416,7 @@ class uploader8(baseUploader):
         # erase memory from self.board.memstart to max_address 
         # ----------------------------------------------------------------------
 
-        # Pinguino x6j50
+        # Pinguino x6j50 or x7j53, erased blocks are 1024-byte long
         if "j" in board.proc :
             #print board.proc
             numBlocksMax  = 1 + ((self.board.memend - self.board.memstart) / 1024)
@@ -427,38 +428,38 @@ class uploader8(baseUploader):
 
             self.eraseFlash(self.board.memstart, numBlocks1024)
 
-        # Pinguino x550 or Pinguino x5k50
+        # Pinguino x455, x550 or x5k50, erased blocks are 64-byte long
         else:
-            numBlocks64 = 1 + ((max_address - self.board.memstart) / 64)
+            self.txtWrite("max_address = "+str(max_address))
+            memoryspace = max_address - self.board.memstart
+            numBlocks64 = (memoryspace / 64)
+            
+            # max_address is a multiple of DATABLOCKSIZE
+            if (memoryspace % 64) != 0:
+                numBlocks64 = numBlocks64 + 1
+
             if numBlocks64 > 511:
                 return self.ERR_USB_ERASE
+
             if numBlocks64 < 256:
                 self.eraseFlash(self.board.memstart, numBlocks64)
+
             else:
-                # erase flash memory from self.board.memstart to self.board.memstart + 0x4000
+                # erase flash memory
+                # from self.board.memstart to self.board.memstart + 255 x 64 = 0x3FC0
                 self.eraseFlash(self.board.memstart, 255)
-                # erase flash memory from self.board.memstart + 0x4000 to max_address
-                numBlocks64 = numBlocks64 - 255
-                self.eraseFlash(self.board.memstart + 0x4000, numBlocks64)
+                # erase flash memory from self.board.memstart + 0x3FC0 to max_address
+                numBlocks64 = numBlocks64 - 256
+                self.eraseFlash(self.board.memstart + 0x3FC0, numBlocks64)
 
         # write blocks of DATABLOCKSIZE bytes
         # ----------------------------------------------------------------------
 
-        usbBuf = []
-        for addr in range(self.board.memstart, max_address):
-        #for addr in range(self.board.memstart, max_address + 64):
+        for addr in range(self.board.memstart, max_address, self.DATABLOCKSIZE):
             index = addr - self.board.memstart
-            #print hex(addr)
-            # do we have a full block ?
-            if addr % self.DATABLOCKSIZE == 0:
-                if usbBuf != []:
-                    #print usbBuf
-                    self.writeFlash(addr - self.DATABLOCKSIZE, usbBuf)
-                usbBuf = []
-            if data[index] != []:
-                #print data[addr - self.board.memstart]
-                usbBuf.append(data[index])
-        #print "%d bytes written.\n" % codesize
+            self.writeFlash(addr, data[index:index+self.DATABLOCKSIZE])
+
+        self.txtWrite("%d bytes written." % codesize)
 
         return self.ERR_NONE
 # ------------------------------------------------------------------------------
@@ -495,7 +496,7 @@ class uploader8(baseUploader):
 
         self.handle = self.initDevice()
         if self.handle == self.ERR_USB_INIT1:
-            self.txtWrite("Upload (write) not possible")
+            self.txtWrite("Upload not possible")
             self.txtWrite("Try to restart the bootloader mode")
             return
 
@@ -503,9 +504,9 @@ class uploader8(baseUploader):
         # ----------------------------------------------------------------------
 
         device_id = self.getDeviceID()
-        #print device_id
         proc = self.getDeviceName(device_id)
         self.txtWrite(" - with PIC%s (id=%s)" % (proc, hex(device_id)))
+        
         if proc != self.board.proc:
             self.txtWrite("Error: Program compiled for %s but device has %s" % (self.board.proc, proc))
             self.closeDevice()
@@ -521,22 +522,24 @@ class uploader8(baseUploader):
         # start writing
         # ----------------------------------------------------------------------
 
-        self.txtWrite("Uploading (writing) user program ...")
+        self.txtWrite("Uploading user program ...")
         status = self.hexWrite(self.filename, self.board)
         
-        status = self.hexWrite(self.filename, self.board)
         if status == self.ERR_HEX_RECORD:
             self.txtWrite("Record error")
             self.closeDevice()
             return
+            
         elif status == self.ERR_HEX_CHECKSUM:
             self.txtWrite("Checksum error")
             self.closeDevice()
             return
+            
         elif status == self.ERR_USB_ERASE:
             self.txtWrite("Erase error")
             self.closeDevice()
             return
+            
         elif status == self.ERR_NONE:
             self.txtWrite(os.path.basename(self.filename) + " successfully uploaded")
 
@@ -553,6 +556,7 @@ class uploader8(baseUploader):
             # and therefore can not be closed
             #self.closeDevice()
             return
+            
         else:
             self.txtWrite("Unknown error")
             return

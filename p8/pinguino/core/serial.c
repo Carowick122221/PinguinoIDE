@@ -70,7 +70,8 @@ void serial_begin(unsigned long baudrate)
 	unsigned long spbrg;
 	unsigned char highbyte,lowbyte;
 
-    spbrg=(48000000/(4*baudrate))-1;
+    spbrg=(System_getCpuFrequency()/(4*baudrate))-1;
+    //spbrg=(48000000/(4*baudrate))-1;
 //    spbrg=(SystemGetClock()/(4*baudrate))-1;
 //    spbrg=(_cpu_clock_/(4*baudrate))-1;
 
@@ -90,6 +91,7 @@ void serial_begin(unsigned long baudrate)
 
 #elif defined(__18f2550) || defined(__18f4550) || \
       defined(__18f25k50) || defined(__18f45k50)
+	TRISCbits.TRISC7	= 1;					/* Rx1	set input */
 	TXSTAbits.BRGH=1;               	  	// set BRGH bit
 	BAUDCONbits.BRG16=1;					// set 16 bits SPBRG
 	SPBRGH=highbyte;                        // set UART speed SPBRGH
@@ -103,6 +105,7 @@ void serial_begin(unsigned long baudrate)
     IPR1bits.RCIP=1;                        // define high priority for RX interrupt
 
 #elif defined(__18f26j50) || defined(__18f46j50)
+	TRISCbits.TRISC7	= 1;					/* Rx1	set input */
 	TXSTA1bits.BRGH=1;               	  	// set BRGH bit
 	BAUDCON1bits.BRG16=1;					// set 16 bits SPBRG
 	SPBRGH1=highbyte;                       // set UART speed SPBRGH
@@ -131,7 +134,7 @@ void serial_begin(unsigned long baudrate)
     INTCONbits.GIEL = 1;                    // Enable global LP interrupts
  	INTCONbits.PEIE = 1;                    // Enable peripheral interrupts
 
-    Delayms(1000);                           // AG : 12-11-2012
+    //Delayms(1000);                           // AG : 12-11-2012
 }
 
 // new character receive ?
@@ -214,9 +217,11 @@ unsigned char serial_read()
 
 	if (serial_available())
     {
+		PIE1bits.RCIE=0;             // Atomic operation start
 	    caractere=rx[rpointer++];
 	    if (rpointer==RXBUFFERLENGTH)
 		rpointer=1;
+		PIE1bits.RCIE=1;             // Atomic operation end
     }
 	return(caractere);
 }
@@ -247,6 +252,21 @@ void serial_printf(char *fmt, ...)
 	--------------------------------------------------------------------------*/
 
 #if defined(__SERIAL_PRINT__) || defined(__SERIAL_PRINTLN__)
+#	define serial_print(m,type)		{ serial_print_##type(m);  }
+#	define serial_println(m,type)	{ serial_print_##type(m);  serial_printf("\r\n"); }
+void serial_print_FLOAT(float m){ serial_printf("%f",m); }
+void serial_print_DEC(u16 m)    { serial_printf("%d",m); }
+void serial_print_HEX(u16 m)    { serial_printf("%x",m); }
+void serial_print_BYTE(u16 m)   { serial_printf("%d",m); }
+void serial_print_OCT(u16 m)    { serial_printf("%o",m); }
+void serial_print_BIN(u16 m)    { serial_printf("%b",m); }
+#endif
+
+/* serial_print() function can not correctly support serial_print("some string") aka Serial.print("some string").
+ * In case serial_print("some string"), va_arg(args, u32) will return a unexpected invalid value. 
+ * by avrin */
+
+#if 0
 //void serial_print(char *fmt,...)
 void serial_print(const char *fmt,...)
 {
@@ -293,7 +313,7 @@ void serial_print(const char *fmt,...)
 	a carriage return character (ASCII 13, or '\r') and a newline character
 	(ASCII 10, or '\n').
 	--------------------------------------------------------------------------*/
-
+#if 0
 #if defined(__SERIAL_PRINTLN__)
 void serial_println(char *fmt,...)
 {
@@ -301,6 +321,7 @@ void serial_println(char *fmt,...)
 	serial_printf("\n\r");
 }
 #endif /* __SERIAL_PRINTLN__ */
+#endif
 
 /*	----------------------------------------------------------------------------
 	serial_getkey()
@@ -326,7 +347,8 @@ u8 serial_getkey()
 #if defined(__SERIAL_GETSTRING__)
 u8 * serial_getstring()
 {
-	u8 buffer[80];
+	static u8 buffer[80]; // Need static attribute, because a function can not return local array without
+	                      // static attribute.
 	u8 c;
 	u8 i = 0;
 
