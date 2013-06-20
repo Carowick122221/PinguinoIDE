@@ -26,68 +26,72 @@
 #include <delay.c>		//Arduino like delays
 #include <digitalw.c>	//Arduino like DigitalWrite and Read
 #include <lcdlib.h>
+#ifdef LCDPRINTF
 #include <stdio.c>
 #include <stdarg.h>
+#endif
+
 
 /** Positive pulse on E */
-void _lcd_pulseEnable(void)
+void lcd_pulseEnable(void)
 {
 	//digitalwrite(_enable_pin, LOW);
-	//Delayus(1);    
+//	Delayus(1);    
 	digitalwrite(_enable_pin, HIGH);
-	//Delayus(1);    // enable pulse must be >450ns
+//	Delayus(1);    // enable pulse must be >450ns
 	digitalwrite(_enable_pin, LOW);
-	//Delayus(100);   // commands need > 37us to settle
+//	Delayus(100);   // commands need > 37us to settle
 }
 
 /** Write using 4bits mode */
-void _lcd_write4bits(u8 value)
+void lcd_write4bits(u8 value)
 {
 	u8 i;
 	for (i = 0; i < 4; i++)
 		digitalwrite(_data_pins[i], (value >> i) & 0x01);
-	_lcd_pulseEnable();
+	lcd_pulseEnable();
 }
 
 /** Write using 8bits mode */
-void _lcd_write8bits(u8 value)
+void lcd_write8bits(u8 value)
 {
 	u8 i;
 	for (i = 0; i < 8; i++)
 		digitalwrite(_data_pins[i], (value >> i) & 0x01);
-	_lcd_pulseEnable();
+	lcd_pulseEnable();
 }
 
 /** Send data to LCD 8 or 4 bits */
-void _lcd_send(u8 value, u8 mode)
+void lcd_send(u8 value, u8 mode)
 {
 	digitalwrite(_rs_pin, mode);
   
 	if (_displayfunction & LCD_8BITMODE)
 	{
-		_lcd_write8bits(value); 
+		lcd_write8bits(value); 
 	}
 	else
 	{
-		_lcd_write4bits(value >> 4);	// Upper 4 bits first
-		_lcd_write4bits(value);		    // Lower 4 bits second
+		lcd_write4bits(value >> 4);	// Upper 4 bits first
+		lcd_write4bits(value);		    // Lower 4 bits second
 	}
 }
 
 /** Write a data character on LCD */
-void _lcd_write(u8 value)
+void lcd_write(u8 value)
 {
-	_lcd_send(value, HIGH);
+	lcd_send(value, HIGH);
 }
 
 /** Write a control command on LCD */
-void _lcd_command(u8 value)
+void lcd_command(u8 value)
 {
-	_lcd_send(value, LOW);
+	lcd_send(value, LOW);
 }
 
 /** Setup line x column on LCD */
-void _lcd_setCursor(u8 col, u8 row)
+#ifdef LCDSETCURSOR
+void lcd_setCursor(u8 col, u8 row)
 {
 	u8 row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 	/* Added 26 May 2012 by MFH
@@ -106,38 +110,43 @@ void _lcd_setCursor(u8 col, u8 row)
 	if ( row > _numlines ) 
 		row = _numlines-1;    // we count rows starting w/0
 	*/
-	_lcd_command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
+	lcd_command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
 }
+#endif
 
 /** Print a string on LCD */
-void _lcd_print(char *string)
+#ifdef LCDPRINT
+void lcd_print(char *string)
 {
 	u8 i;
 	for( i=0; string[i]; i++)
-		_lcd_write(string[i]);
+		lcd_write(string[i]);
 }
-
+#endif
 
 /** Write formated string on LCD **/
+#ifdef LCDPRINTF
 //  added 28/01/2011 rblanchot@gmail.com
-void _lcd_printf(char *fmt, ...)
+void lcd_printf(char *fmt, ...)
 {
 	va_list args;
 
 	va_start(args, fmt);
-	pprintf(_lcd_write, fmt, args);
+	pprintf(lcd_write, fmt, args);
 	va_end(args);
 }
+#endif
 
 /** Print a number on LCD */
-void _lcd_printNumber(u16 n, u8 base)
+#ifdef LCDPRINTNUMBER
+void lcd_printNumber(u16 n, u8 base)
 {  
 	u8 buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
 	u16 i = 0;
 
 	if (n == 0)
 	{
-		_lcd_write('0');
+		lcd_write('0');
 		return;
 	} 
 
@@ -148,11 +157,13 @@ void _lcd_printNumber(u16 n, u8 base)
 	}
 
 	for (; i > 0; i--)
-		_lcd_write((char) (buf[i - 1] < 10 ? '0' + buf[i - 1] : 'A' + buf[i - 1] - 10));
+		lcd_write((char) (buf[i - 1] < 10 ? '0' + buf[i - 1] : 'A' + buf[i - 1] - 10));
 }
+#endif
 
 /** Print a float number to LCD */
-void _lcd_printFloat(float number, u8 digits)
+#ifdef LCDPRINTFLOAT
+void lcd_printFloat(float number, u8 digits)
 { 
 	u8 i, toPrint;
 	u16 int_part;
@@ -161,7 +172,7 @@ void _lcd_printFloat(float number, u8 digits)
 	// Handle negative numbers
 	if (number < 0.0)
 	{
-		_lcd_write('-');
+		lcd_write('-');
 		number = -number;
 	}
 
@@ -175,179 +186,212 @@ void _lcd_printFloat(float number, u8 digits)
 	// Extract the integer part of the number and print it  
 	int_part = (u16)number;
 	remainder = number - (float)int_part;
-	_lcd_printNumber(int_part, 10);
+	lcd_printNumber(int_part, 10);
 
 	// Print the decimal point, but only if there are digits beyond
 	if (digits > 0)
-		_lcd_write('.'); 
+		lcd_write('.'); 
 
 	// Extract digits from the remainder one at a time
 	while (digits-- > 0)
 	{
 		remainder *= 10.0;
 		toPrint = (unsigned int)remainder; //Integer part without use of math.h lib, I think better! (Fazzi)
-		_lcd_printNumber(toPrint, 10);
+		lcd_printNumber(toPrint, 10);
 		remainder -= toPrint; 
 	}
 }
+#endif
 
 /** Move cursor to Home position */
-void _lcd_home()
+#ifdef LCDHOME
+void lcd_home()
 {
-	_lcd_command(LCD_RETURNHOME);
-	Delayus(2000);
+	lcd_command(LCD_RETURNHOME);
+Delayms(2);									// Wait for more than 4.1 ms
+//	Delayus(2000);
 }
+#endif
 
 /** Clear LCD */
-void _lcd_clear()
+#ifdef LCDCLEAR
+void lcd_clear()
 {
-	_lcd_command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
-	Delayus(2000);  // this command takes a long time!
+    lcd_command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
+    Delayms(2);									// Wait for more than 4.1 ms
+    //	Delayus(2000);  // this command takes a long time!
 }
+#endif
 
 /** Turn the display on/off (quickly) */
-void _lcd_noDisplay()
+#ifdef LCDNODISPLAY
+void lcd_noDisplay()
 {
 	_displaycontrol &= ~LCD_DISPLAYON;
-	_lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
+	lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+#endif
 
-void _lcd_display()
+#ifdef LCDDISPLAY
+void lcd_display()
 {
 	_displaycontrol |= LCD_DISPLAYON;
-	_lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
+	lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+#endif
 
 /** Turns the underline cursor on/off */
-void _lcd_noCursor()
+#ifdef LCDNOCURSOR
+void lcd_noCursor()
 {
 	_displaycontrol &= ~LCD_CURSORON;
-	_lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
+	lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+#endif
 
-void _lcd_cursor()
+#ifdef LCDCURSOR
+void lcd_cursor()
 {
 	_displaycontrol |= LCD_CURSORON;
-	_lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
+	lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+#endif
 
 /** Turn on and off the blinking cursor */
-void _lcd_noBlink()
+#ifdef LCDNOBLINK
+void lcd_noBlink()
 {
 	_displaycontrol &= ~LCD_BLINKON;
-	_lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
+	lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+#endif
 
-void _lcd_blink()
+#ifdef LCDBLINK
+void lcd_blink()
 {
 	_displaycontrol |= LCD_BLINKON;
-	_lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
+	lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+#endif
 
 /** These commands scroll the display without changing the RAM */
-void _lcd_scrollDisplayLeft(void)
+#ifdef LCDSCROLLDISPLAYLEFT
+void lcd_scrollDisplayLeft(void)
 {
-	_lcd_command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
+	lcd_command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
 }
+#endif
 
-void _lcd_scrollDisplayRight(void)
+#ifdef LCDSCROLLDISPLAYRIGHT
+void lcd_scrollDisplayRight(void)
 {
-	_lcd_command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
+	lcd_command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
 }
+#endif
 
 /** This is for text that flows Left to Right */
-void _lcd_leftToRight(void)
+#ifdef LCDLEFTTORIGHT
+void lcd_leftToRight(void)
 {
 	_displaymode |= LCD_ENTRYLEFT;
-	_lcd_command(LCD_ENTRYMODESET | _displaymode);
+	lcd_command(LCD_ENTRYMODESET | _displaymode);
 }
+#endif
 
 /** This is for text that flows Right to Left */
-void _lcd_rightToLeft(void)
+#ifdef LCDLEFTTOLEFT
+void lcd_rightToLeft(void)
 {
 	_displaymode &= ~LCD_ENTRYLEFT;
-	_lcd_command(LCD_ENTRYMODESET | _displaymode);
+	lcd_command(LCD_ENTRYMODESET | _displaymode);
 }
+#endif
 
 /** This will 'right justify' text from the cursor */
-void _lcd_autoscroll(void) {
+#ifdef LCDAUTOSCROLL
+void lcd_autoscroll(void) {
 	_displaymode |= LCD_ENTRYSHIFTINCREMENT;
-	_lcd_command(LCD_ENTRYMODESET | _displaymode);
+	lcd_command(LCD_ENTRYMODESET | _displaymode);
 }
+#endif
 
 /** This will 'left justify' text from the cursor */
-void _lcd_noAutoscroll(void) {
+#ifdef LCDNOAUTOSCROLL
+void lcd_noAutoscroll(void) {
 	_displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
-	_lcd_command(LCD_ENTRYMODESET | _displaymode);
+	lcd_command(LCD_ENTRYMODESET | _displaymode);
 }
+#endif
 
 /** Initial Display settings! */
-void _lcd_begin(u8 lines, u8 dotsize)
+void lcd_begin(u8 lines, u8 dotsize)
 {
-	if (lines > 1)
-		_displayfunction |= LCD_2LINE;
+    if (lines > 1)
+        _displayfunction |= LCD_2LINE;
 
-	_numlines = lines;
-	_currline = 0;
+    _numlines = lines;
+    _currline = 0;
 
-	// Some one line displays can select 10 pixel high font
-	if ((dotsize != 0) && (lines == 1))
-		_displayfunction |= LCD_5x10DOTS;
+    // Some one line displays can select 10 pixel high font
+    if ((dotsize != 0) && (lines == 1))
+        _displayfunction |= LCD_5x10DOTS;
 
-	Delayms(15); //Pinguino needs it? long delay on startup time!
+    Delayms(15);								// Wait more than 15 ms after VDD rises to 4.5V
 
-	// Now we pull both RS and R/W low to begin commands
-	digitalwrite(_rs_pin, LOW);
-	digitalwrite(_enable_pin, LOW);
+    // Now we pull both RS and R/W low to begin commands
+    digitalwrite(_rs_pin, LOW);
+    digitalwrite(_enable_pin, LOW);
 
-	//put the LCD into 4 bit mode
-	if (! (_displayfunction & LCD_8BITMODE) )
-	{
-		// this is according to the hitachi HD44780 datasheet p46, figure 24
+    //put the LCD into 4 bit mode
+    if (! (_displayfunction & LCD_8BITMODE) )
+    {
+        // this is according to the hitachi HD44780 datasheet p46, figure 24
 
-		// we start in 8bit mode, try to set 4 bit mode
-		_lcd_write4bits(0x03);
-		Delayms(5); // wait min 4.1ms
-		// second try
-		_lcd_write4bits(0x03);
-		Delayus(150); // wait min 4.1ms
-		// third go!
-		_lcd_write4bits(0x03); 
-		Delayus(150);
-		// finally, set to 8-bit interface
-		_lcd_write4bits(0x02); 
-	}
-	//put the LCD into 8 bit mode
-	else
-	{
-		// this is according to the hitachi HD44780 datasheet p45, figure 23
+        // we start in 8bit mode, try to set 4 bit mode
+        lcd_write4bits(0x03);
+        Delayms(5);									// Wait for more than 4.1 ms
+        // second try
+        lcd_write4bits(0x03);
+        Delayus(150);								// Wait more than 100 μs
+        // third go!
+        lcd_write4bits(0x03); 
+        Delayus(150);								// Wait more than 100 μs
+        // finally, set to 8-bit interface
+        lcd_write4bits(0x02); 
+    }
+    //put the LCD into 8 bit mode
+    else
+    {
+        // this is according to the hitachi HD44780 datasheet p45, figure 23
 
-		// Send function set command sequence
-		_lcd_command(LCD_FUNCTIONSET | _displayfunction);
-		Delayus(4500);  // wait more than 4.1ms
+        // Send function set command sequence
+        lcd_command(LCD_FUNCTIONSET | _displayfunction);
+        Delayms(5);									// Wait for more than 4.1 ms
 
-		// second try
-		_lcd_command(LCD_FUNCTIONSET | _displayfunction);
-		Delayus(150);
+        // second try
+        lcd_command(LCD_FUNCTIONSET | _displayfunction);
+        Delayms(5);									// Wait for more than 4.1 ms
+        //		Delayus(150);
 
-		// third go
-		_lcd_command(LCD_FUNCTIONSET | _displayfunction);
-	}
+        // third go
+        lcd_command(LCD_FUNCTIONSET | _displayfunction);
+    }
 
-	// finally, set # lines, font size, etc.
-	_lcd_command(LCD_FUNCTIONSET | _displayfunction);  
+    // finally, set # lines, font size, etc.
+    lcd_command(LCD_FUNCTIONSET | _displayfunction);  
 
-	// turn the display on with no cursor or blinking default
-	_displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;  
-	_lcd_display();
+    // turn the display on with no cursor or blinking default
+    _displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;  
+    lcd_command(LCD_DISPLAYCONTROL | _displaycontrol);
 
-	// clear it off
-	_lcd_clear();
+    // clear it off
+    lcd_command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
+    Delayms(2);
 
-	// Initialize to default text direction (for romance languages)
-	_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
-	// set the entry mode
-	_lcd_command(LCD_ENTRYMODESET | _displaymode);
+    // Initialize to default text direction (for romance languages)
+    _displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
+    // set the entry mode
+    lcd_command(LCD_ENTRYMODESET | _displaymode);
 }
 
 /** Init LCD 
@@ -355,7 +399,7 @@ void _lcd_begin(u8 lines, u8 dotsize)
  * rs , rw, enable
  * pins => D0 ~ D7.
  */
-void _lcd_init(u8 fourbitmode, u8 rs, u8 rw, u8 enable, 
+void lcd_init(u8 fourbitmode, u8 rs, u8 rw, u8 enable, 
 			u8 d0, u8 d1, u8 d2, u8 d3,
 			u8 d4, u8 d5, u8 d6, u8 d7)
 {
@@ -393,9 +437,9 @@ void _lcd_init(u8 fourbitmode, u8 rs, u8 rw, u8 enable,
 }
 
 /** LCD 8 bits mode */
-void _lcd_pins(u8 rs, u8 enable, u8 d0, u8 d1, u8 d2, u8 d3, u8 d4, u8 d5, u8 d6, u8 d7)
+void lcd_pins(u8 rs, u8 enable, u8 d0, u8 d1, u8 d2, u8 d3, u8 d4, u8 d5, u8 d6, u8 d7)
 {
-	_lcd_init(((d4 + d5 + d6 + d7)==0), rs, -1, enable, d0, d1, d2, d3, d4, d5, d6, d7);		
+	lcd_init(((d4 + d5 + d6 + d7)==0), rs, -1, enable, d0, d1, d2, d3, d4, d5, d6, d7);
 }
 
 #endif

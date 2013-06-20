@@ -250,13 +250,13 @@
 // noboot: 0x08
 void high_priority_isr(void) __interrupt 1
 {
-	__asm
-		MOVFF	TBLPTRL, POSTDEC1
-		MOVFF	TBLPTRH, POSTDEC1
-		MOVFF	TBLPTRU, POSTDEC1
-		MOVFF	TABLAT,	 POSTDEC1
-	__endasm;
-		
+    __asm
+        MOVFF   _TBLPTRL, _POSTDEC1
+        MOVFF   _TBLPTRH, _POSTDEC1
+        MOVFF   _TBLPTRU, _POSTDEC1
+        MOVFF   _TABLAT,  _POSTDEC1
+    __endasm;
+        
     #ifdef __USBCDC
     CDC_interrupt();
     #endif
@@ -301,12 +301,12 @@ void high_priority_isr(void) __interrupt 1
     rtcc_interrupt();
     #endif
 
-	__asm 
-		MOVFF	PREINC1, TABLAT
-		MOVFF	PREINC1, TBLPTRU
-		MOVFF	PREINC1, TBLPTRH
-		MOVFF	PREINC1, TBLPTRL
-	__endasm;
+    __asm 
+        MOVFF   _PREINC1, _TABLAT
+        MOVFF   _PREINC1, _TBLPTRU
+        MOVFF   _PREINC1, _TBLPTRH
+        MOVFF   _PREINC1, _TBLPTRL
+    __endasm;
 }
 #endif
 
@@ -324,12 +324,12 @@ void high_priority_isr(void) __interrupt 1
 // noboot: 0x18
 void low_priority_isr(void) __interrupt 2
 {
-	__asm
-		MOVFF	TBLPTRL, POSTDEC1
-		MOVFF	TBLPTRH, POSTDEC1
-		MOVFF	TBLPTRU, POSTDEC1
-		MOVFF	TABLAT,	 POSTDEC1
-	__endasm;
+    __asm
+        MOVFF   _TBLPTRL, _POSTDEC1
+        MOVFF   _TBLPTRH, _POSTDEC1
+        MOVFF   _TBLPTRU, _POSTDEC1
+        MOVFF   _TABLAT,  _POSTDEC1
+    __endasm;
 
     #ifdef USERINT
     userinterrupt();
@@ -339,12 +339,12 @@ void low_priority_isr(void) __interrupt 2
     userlowinterrupt();
     #endif
 
-	__asm 
-		MOVFF	PREINC1, TABLAT
-		MOVFF	PREINC1, TBLPTRU
-		MOVFF	PREINC1, TBLPTRH
-		MOVFF	PREINC1, TBLPTRL
-	__endasm;
+    __asm 
+        MOVFF   _PREINC1, _TABLAT
+        MOVFF   _PREINC1, _TBLPTRU
+        MOVFF   _PREINC1, _TBLPTRH
+        MOVFF   _PREINC1, _TBLPTRL
+    __endasm;
 }
 #endif
 

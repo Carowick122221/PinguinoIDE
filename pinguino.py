@@ -35,14 +35,14 @@ class MySplashScreen(wx.SplashScreen):
         #memDC.DrawText(_("loading..."), 10, 355)
         memDC.DrawText(_("loading..."), 10, 275)
         memDC.SelectObject(wx.NullBitmap)
-        
-        # TODO : replace wx.BORDER_SIMPLE (windows only)		
+
+        # TODO : replace wx.BORDER_SIMPLE (windows only)
         wx.SplashScreen.__init__(self, bmp,
                                  wx.SPLASH_CENTRE_ON_SCREEN | wx.SPLASH_TIMEOUT,
                                  5000, None, -1, style=wx.BORDER_SIMPLE)
         self.Bind(wx.EVT_CLOSE, self.OnCloseSplash)
         self.fc = wx.FutureCall(2000, self.ShowMain)
-        
+
     #----------------------------------------------------------------------
     def OnCloseSplash(self, evt):
         evt.Skip()
@@ -59,14 +59,14 @@ class MySplashScreen(wx.SplashScreen):
         frame.__initPinguino__(None)
         frame.Show()
         if self.fc.IsRunning(): self.Raise()
-        
-        
+
+
 
 ########################################################################
 class MyApp(wx.App):
     def __init__(self):
         wx.App.__init__(self, redirect=True, filename="pinguinoPanic")
-        
+
     def OnInit(self):
         if sys.platform=='darwin':
             setGui(True)
@@ -74,7 +74,7 @@ class MyApp(wx.App):
             frame.__initPinguino__(None)
             app.SetTopWindow(frame)
             frame.Show()
-        else:			
+        else:
             splash = MySplashScreen()
             splash.Show()
         return True
@@ -84,7 +84,7 @@ def show_error():
     message = ''.join(traceback.format_exception(*sys.exc_info()))
     dialog = wx.MessageDialog(None, message, 'Error!', wx.OK|wx.ICON_ERROR)
     dialog.ShowModal()
-    
+
 
 #----------------------------------------------------------------------
 def main():
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 # ------------------------------------------------------------------------------
 
     options = getOptions()
-    
+
 
     if options.version == True:
         print "current version is " + getVersion() #pinguino_version
@@ -122,15 +122,15 @@ if __name__ == "__main__":
 
     if options.board != False or type(options.board) == type(1):  # False = 0
         curBoard = boardlist[options.board]
-        
+
         boots = {"noboot": 0, "boot2": 0x2000, "boot4": 0x0C00}
-        
+
         if options.bootloader: bootloader = options.bootloader[0]
         else: bootloader = "boot2"  #Por defecto
 
         curBoard.bldr = bootloader
-        curBoard.memstart = boots[bootloader] 
-            
+        curBoard.memstart = boots[bootloader]
+
         print "Board: " + curBoard.name
         print "Proc.: " + curBoard.proc
 
@@ -147,16 +147,16 @@ if __name__ == "__main__":
 
         setGui(False)
         pobject=Pinguino(None)
-        
+
         #Initialize vars
         pobject.rw = []
         pobject.regobject = []
         pobject.reservedword = []
         pobject.libinstructions = []
-        
+
         pobject.setOSvariables()
         pobject.readlib(curBoard)
-        
+
         print "preprocessing ..."
         retour=pobject.preprocess(fname, curBoard)
         if retour == "error":
@@ -184,7 +184,7 @@ if __name__ == "__main__":
         shutil.copy(os.path.join(SOURCE_DIR, MAIN_FILE), fname + ".hex")
         print "compilation done"
         print pobject.getCodeSize(fname, curBoard)
-        
+
         if options.upload != False:
             print "Uploading..."
             #Very ugly method to upload code
@@ -193,11 +193,11 @@ if __name__ == "__main__":
             pobject.displaymsg = lambda *x: sys.stdout.write(x[0])
             pobject.OnUpload(path=filename)
             #------------------------------------------
-        
+
         print "OK"
         os.remove(os.path.join(SOURCE_DIR, MAIN_FILE))
         #os.remove(fname + ".c")
-        
+
         sys.exit(0)
 
 # ------------------------------------------------------------------------------

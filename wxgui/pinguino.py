@@ -52,7 +52,7 @@ class Pinguino(framePinguinoX, IDE):
 
     #----------------------------------------------------------------------
     def __initPinguino__(self, parent):
-    
+
     # ----------------------------------------------------------------------
     # Initializes vars
     # ----------------------------------------------------------------------
@@ -61,47 +61,47 @@ class Pinguino(framePinguinoX, IDE):
         self.boardlist = boardlist
         self.currentLateralDir = os.path.join(os.getcwd(),"examples")
         self.recentsFiles = []
-        
+
         # Autocompleter
         self.autoCompleteWords = []
         self.filesNeighbors = []
-        self.allVars_back = [] 
+        self.allVars_back = []
         self.allFunc_back = []
         self.allDefi_back = []
-        
+
         self.setOSvariables()
-        
+
     # ----------------------------------------------------------------------
     # Load config file
     # ----------------------------------------------------------------------
         self.loadConfigFile()
-        self.loadConfigIDE()        
-        
-        
+        self.loadConfigIDE()
+
+
     # ----------------------------------------------------------------------
     # Initializes environment
     # ----------------------------------------------------------------------
         if os.path.isdir(TEMP_DIR) == False: os.mkdir(TEMP_DIR)
-            
-    
+
+
     # ----------------------------------------------------------------------
     # Initializes IDE objects
     # ----------------------------------------------------------------------
-        self.initIDEobjects() 
+        self.initIDEobjects()
 
 
     # ----------------------------------------------------------------------
     # Initializes config
     # ----------------------------------------------------------------------
         self.setEditorFont()
-        
-        
+
+
 # ----------------------------------------------------------------------
 # Update distribution
 # ----------------------------------------------------------------------
         #This can't be instant
         wx.FutureCall(1000, self.updateSashs)
-        
+
         #Unnecessary on Windows XP and GNU/Linux, totally destructive on mac OS and Windows 7/8
         #self.updateIDE()
 
@@ -114,7 +114,7 @@ class Pinguino(framePinguinoX, IDE):
             if board.bldr == "noboot": pass
             elif board.arch == arch: devs.append(board.name)
         return 2, devs  #Columns, List
-    
+
     #----------------------------------------------------------------------
     def setOSvariables(self):
         """Get OS name and define some OS dependant variable"""
@@ -154,14 +154,14 @@ class Pinguino(framePinguinoX, IDE):
     def setBoard(self, arch, mode, name, bootloader):
 
         self.changingBoard = True
-        
+
         self.rw = []
         self.regobject = []
         self.keywordList = []
         self.reservedword = []
         self.libinstructions = []
-        
-        self.modeCompile = mode 
+
+        self.modeCompile = mode
 
         if mode == "BOOT":
             for board in boardlist:
@@ -173,10 +173,10 @@ class Pinguino(framePinguinoX, IDE):
                     else:
                         self.curBoard.bldr = bootloader[0]
                         self.curBoard.memstart = int(bootloader[1])
-            
+
             if arch == 8: textStatus=self.curBoard.name + " [" + bootloader[0] + "]"
             if arch == 32: textStatus=self.curBoard.name
-            
+
         else:
             self.curBoard = boardlist[0]
             self.curBoard.name = name
@@ -186,7 +186,7 @@ class Pinguino(framePinguinoX, IDE):
             self.curBoard.memstart = 0x0000
             self.curBoard.memend = devlist[self.curBoard.proc][1]*1024
             textStatus = self.curBoard.name + " [ICSP]"
-            
+
         self.displaymsg(_("Changing board")+"...", 0)
         self.statusBarEditor.SetStatusText(number=2, text=textStatus)
         if sys.platform=='darwin':
@@ -201,9 +201,9 @@ class Pinguino(framePinguinoX, IDE):
         if self.changingBoard:
             self.displaymsg(_("Please wait a moment.")+"\n", 0)
             return
-        
+
         self.displaymsg("", 1)
-        
+
         #self.in_verify=1
         t0 = time.time()
         if self.GetPath()==-1:
@@ -214,12 +214,12 @@ class Pinguino(framePinguinoX, IDE):
             result=dlg.ShowModal()
             dlg.Destroy()
             return False
-        
+
         self.displaymsg(_("Board:\t")+" " + self.curBoard.name, 1)
         self.displaymsg(_("Proc:\t")+" " + self.curBoard.proc, 0)
         self.displaymsg(_("File:\t")+" " + self.GetPath(), 0)
         self.displaymsg(_("compiling")+("..."), 0)
-        
+
         self.OnSave()
         filename=self.GetPath()
         filename,extension=os.path.splitext(filename)
@@ -260,10 +260,10 @@ class Pinguino(framePinguinoX, IDE):
 
     #----------------------------------------------------------------------
     def OnUpload(self, event=None, path=None):
-        
+
         if path == None: path = self.GetPath()
         #else: path = filename
-        
+
         if  path != -1:
             filename = path
             filename, extension = os.path.splitext(filename)
@@ -274,7 +274,7 @@ class Pinguino(framePinguinoX, IDE):
                     #except usb.USBError:  #No device
                     #self.displaymsg("No device",0)
                     #return
-                    
+
                 else:
                     fichier = open(os.path.join(SOURCE_DIR, 'stdout'), 'w+')
                     sortie=Popen([os.path.join(HOME_DIR, self.osdir, 'p32', 'bin', self.u32),
@@ -308,7 +308,7 @@ class Pinguino(framePinguinoX, IDE):
     def readlib(self, board, textStatus=""):
         """Load .pdl or .pdl32 files (keywords and libraries)
          trying to find PDL files to store reserved words."""
-        
+
         self.keywordList = []
         if board.arch == 8:
             libext='.pdl'
@@ -373,11 +373,11 @@ class Pinguino(framePinguinoX, IDE):
         #if gui==True: # or AttributeError: 'Pinguino' object has no attribute 'extraName'
             #self.displaymsg(_("Board config")+":\t"+textStatus, 0, force_update=False)
         #else:
-        self.displaymsg(_("Board config")+":\t"+textStatus, 0, force_update=False)	    
+        self.displaymsg(_("Board config")+":\t"+textStatus, 0, force_update=False)
 
-        self.changingBoard = False	
+        self.changingBoard = False
 
-    
+
     #----------------------------------------------------------------------
     def ClearRedundancy(self, myList):
         seen = set()
@@ -392,7 +392,7 @@ class Pinguino(framePinguinoX, IDE):
     #----------------------------------------------------------------------
     def preprocess(self, filename, board):
         """Read Pinguino File (.pde) and translate it into C language"""
-        
+
         defineword={}
         index=0
         fileline={}
@@ -527,10 +527,10 @@ class Pinguino(framePinguinoX, IDE):
             if s.startswith('/'):
                 #return "" #bug in line number in error info, multiline comments
                 return "" + "\n" * (s.count("\n"))
-            
+
             else:
                 return s
-            
+
         pattern = re.compile(
             r'//.*?$|/\*.*?\*/|\'(?:\\.|[^\\\'])*\'|"(?:\\.|[^\\"])*"',
             re.DOTALL | re.MULTILINE
@@ -541,13 +541,13 @@ class Pinguino(framePinguinoX, IDE):
     #----------------------------------------------------------------------
     def compile(self, filename, board):
         """ Compile.
-        
+
         NB :  "--opt-code-size"   deprecated
               "--use-non-free"    implicit -I and -L options for non-free headers and libs
         """
 
         if board.arch == 8:
-            
+
             fichier = open(os.path.join(SOURCE_DIR, 'stdout'), 'w+')
             if board.bldr == 'boot2':
                 sortie = Popen([os.path.join(self.P8_BIN_DIR, self.c8),\
@@ -569,8 +569,8 @@ class Pinguino(framePinguinoX, IDE):
                     "-o" + os.path.join(SOURCE_DIR, 'main.o'),\
                     os.path.join(SOURCE_DIR, 'main.c')],\
                     stdout=fichier, stderr=STDOUT)
-                
-                               
+
+
             elif board.bldr == 'boot4':
                 #"--nostdinc",\
                 #"--nostdlib",\
@@ -595,7 +595,7 @@ class Pinguino(framePinguinoX, IDE):
                     os.path.join(SOURCE_DIR, 'main.c'),\
                     "-o" + os.path.join(SOURCE_DIR, 'main.o')],\
                     stdout=fichier, stderr=STDOUT)
-                               
+
             elif board.bldr == 'noboot':
                 sortie = Popen([os.path.join(self.P8_BIN_DIR, self.c8),\
                     "--verbose",\
@@ -616,13 +616,13 @@ class Pinguino(framePinguinoX, IDE):
                     os.path.join(SOURCE_DIR, 'main.c'),\
                     "-o" + os.path.join(SOURCE_DIR, 'main.o')],\
                     stdout=fichier, stderr=STDOUT)
-                               
+
             sortie.communicate()
             if sortie.poll()!=0:
                 #
                 # Error treatment (RB: fixed 2012-11-15)
                 #
-                
+
                 # set the file pointer to the beginning of stdout
                 fichier.seek(0)
 
@@ -647,7 +647,7 @@ class Pinguino(framePinguinoX, IDE):
                         # TODO : highlight more than one line / highlight must remain until line is changed
                         if gui: self.highlightline(int(error_line_number)-1, error_color)
                         self.displaymsg("error line " + error_line_number + " " + error_message, 0)
-                        
+
                     # ASM errors
                     error_pos = ligne.find('Error')
                     if (error_pos != -1):
@@ -673,14 +673,14 @@ class Pinguino(framePinguinoX, IDE):
     #----------------------------------------------------------------------
     def link(self, filename, board):
         """Link.
-        
+
         NB :  "--opt-code-size"   deprecated
               "--use-non-free"    implicit -I and -L options for non-free headers and libs"""
-        
+
         fichier = open(os.path.join(SOURCE_DIR, 'stdout'), 'w+')
-        
+
         if board.arch == 8:
-            
+
             if board.bldr == 'boot2':
                 sortie = Popen([os.path.join(self.P8_BIN_DIR, self.c8),\
                     "--verbose",\
@@ -716,7 +716,7 @@ class Pinguino(framePinguinoX, IDE):
                     os.path.join(P8_DIR, 'obj', 'crt0ipinguino.o'),\
                     os.path.join(SOURCE_DIR, 'main.o')],\
                     stdout=fichier, stderr=STDOUT)
-                    
+
             elif board.bldr == 'boot4':
                 sortie = Popen([os.path.join(self.P8_BIN_DIR, self.c8),\
                     "--verbose", "-V",\
@@ -756,7 +756,7 @@ class Pinguino(framePinguinoX, IDE):
                     "-o" + os.path.join(SOURCE_DIR, 'main.hex'),\
                     ],\
                     stdout=fichier, stderr=STDOUT)
-                    
+
             elif board.bldr == 'noboot':
                 sortie = Popen([os.path.join(self.P8_BIN_DIR, self.c8),\
                     "--verbose",\
@@ -789,7 +789,7 @@ class Pinguino(framePinguinoX, IDE):
                     "-o" + os.path.join(SOURCE_DIR, 'main.hex'),\
                     os.path.join(SOURCE_DIR, 'main.o')],\
                     stdout=fichier, stderr=STDOUT)
-                    
+
         else:#if board.arch == 32:
             # "PDEDIR=" + os.path.dirname(self.GetPath()),\
             # can't be used with Command Line version since editor isn't used
@@ -800,7 +800,7 @@ class Pinguino(framePinguinoX, IDE):
                           "PROC=" + board.proc,\
                           "BOARD=" + board.board],\
                          stdout=fichier, stderr=STDOUT)
-                         
+
         sortie.communicate()
         fichier.seek(0)
         # Check if child process has terminated
@@ -813,7 +813,7 @@ class Pinguino(framePinguinoX, IDE):
             if board.board in ['PIC32_PINGUINO_220', 'GENERIC32MX250F128', 'GENERIC32MX220F032']:
                 badrecord=":040000059D0040001A\n"
             else:
-                badrecord=":040000059D006000FA\n"                
+                badrecord=":040000059D006000FA\n"
             if os.path.exists(os.path.join(SOURCE_DIR,"main32tmp.hex")):
                 fichiersource=open(os.path.join(SOURCE_DIR,"main32tmp.hex"),'r')
                 fichierdest=open(os.path.join(SOURCE_DIR,"main32.hex"),'w+')
@@ -847,7 +847,7 @@ class Pinguino(framePinguinoX, IDE):
                 if address >= board.memstart:
                     codesize = codesize + byte_count
         fichier.close()
-        return _("code size: ") + str(codesize) + " / " + str(memfree) + " " + _("bytes") + " (" + str(100*codesize/memfree) + "% " +_("used")+ ")" 
+        return _("code size: ") + str(codesize) + " / " + str(memfree) + " " + _("bytes") + " (" + str(100*codesize/memfree) + "% " +_("used")+ ")"
 
 
 
@@ -862,7 +862,7 @@ def getOptions():
     parser.add_argument('-dv', '--dev', dest='dev', nargs=1, default=False, help='set developer mode')
     parser.add_argument('-ul', '--upload', dest='upload', const=True, action='store_const', default=False, help='upload code')
     parser.add_argument('-bt', '--boot', dest='bootloader', nargs=1, default=False, help='set bootloader option')
-    
+
     for b in range(len(boardlist)):
         parser.add_argument(    boardlist[b].shortarg,
                                 boardlist[b].longarg,
