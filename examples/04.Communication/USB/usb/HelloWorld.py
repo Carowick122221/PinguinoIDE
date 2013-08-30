@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 #-------------------------------------------------------------------------------
-# File: temp18b20.py
+# File: HelloWorld.py
 #
-# display time and temperature
-# temperature is sent by pinguino device though usb bus
+# display string sent by pinguino device though usb bus
 # 
 # regis blanchot, september 2010
 #
@@ -19,13 +18,8 @@ import time
 import Tkinter	# requires python-tk (apt-get install python-tk)
 from Tkinter import *
 
-curtime = ''
-curtemp = ''
-timeline = ''
-templine = ''
-
 #-------------------------------------------------------------------------------
-# Program window 
+# Program's window 
 #-------------------------------------------------------------------------------
 
 class Window:
@@ -47,10 +41,10 @@ class Pinguino():
 	VENDOR = 0x04D8
 	PRODUCT = 0xFEAA
 	CONFIGURATION = 0x01 # on Pinguino 26J50
-	#CONFIGURATION = 0x03 # on Pinguino 2550 ?
+	#CONFIGURATION = 0x03 # on Pinguino 2550
 	INTERFACE = 0
-	#ENDPOINT_IN = 0x82 #2550
-   	ENDPOINT_IN = 0x81 #26j50
+	#ENDPOINT_IN = 0x82 # on Pinguino 2550
+   	ENDPOINT_IN = 0x81 # on Pinguino 26J50
 	ENDPOINT_OUT = 0x01
 
 	device = None
@@ -95,41 +89,24 @@ class Pinguino():
 
 def update():
 	INTERVAL = 100
-	global curtime
-	global curtemp
-	global timeline
-	global templine
 	deg = unichr(176).encode("utf-8")
-	t = ''
+	myString = ''
 
-	# get temperature
+	# get data from Pinguino board
 	try:
-		t = pinguino.read(4, INTERVAL)
+		for i in pinguino.read(15, INTERVAL):
+			myString += chr(i)
 	except usb.USBError as err:
 		pass
-	if len(t) > 0:
+
+	if len(myString) > 0:
 		#print 't =',t	# debug
-		if t[0] == 1:
-			sign = '-'
-		else:
-			sign = ''
-		newtemp = '%s%d%s%d%s%s' % (sign,t[1], '.', t[2]*256+t[3], deg, 'C')
-		if newtemp != curtemp:
-			curtemp = newtemp
-			if templine:
-				Temp18b20.canvas.delete(templine)			
-			templine = Temp18b20.canvas.create_text(200, 150, text=curtemp, font=("Helvetica", "48", "bold"), fill='red')
-
-	# get time
-	newtime = time.strftime('%H:%M:%S')
-	if newtime != curtime:
-		curtime = newtime
-		if timeline:
-			Temp18b20.canvas.delete(timeline)			
-		timeline = Temp18b20.canvas.create_text(200, 050, text=curtime, font=("Helvetica", "24", "bold"), fill='red')
-
+		HelloWorld.canvas.create_text(200, 150, text=myString, font=("Helvetica", "18", "bold"), fill='red')
+	else:
+		HelloWorld.canvas.create_text(200, 150, text="Nothing received", font=("Helvetica", "12"), fill='red')
+        
 	# recall every 500ms
-	Temp18b20.canvas.after(INTERVAL, update)
+	HelloWorld.canvas.after(INTERVAL, update)
 
 #-------------------------------------------------------------------------------
 # main
@@ -137,8 +114,8 @@ def update():
 
 if __name__ == "__main__":
 	root = Tkinter.Tk()
-	root.title('Temp18B20')
-	Temp18b20 = Window(root)
+	root.title('HelloWorld')
+	HelloWorld = Window(root)
 	pinguino = Pinguino()
 	if pinguino.open() == None:
 		print >> sys.stderr, "Unable to open Pinguino device!"
