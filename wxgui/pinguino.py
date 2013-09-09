@@ -184,9 +184,11 @@ class Pinguino(framePinguinoX, IDE):
                 if name == board.name: self.curBoard.proc = board.proc
             self.curBoard.board = "PIC"+name.upper()
             self.curBoard.memstart = 0x0000
-            self.curBoard.memend = devlist[self.curBoard.proc][1]*1024
+            #self.curBoard.memend = devlist[self.curBoard.proc][1]*1024 
+            warning = "\nWARNING!! this mode can overwrite the bootloader code.\n"
             textStatus = self.curBoard.name + " [ICSP]"
 
+            
         self.displaymsg(_("Changing board")+"...", 0)
         self.statusBarEditor.SetStatusText(number=2, text=textStatus)
         if sys.platform=='darwin':
@@ -195,6 +197,7 @@ class Pinguino(framePinguinoX, IDE):
             self.Thread_curBoard = threading.Thread(target=self.readlib, args=(self.curBoard, textStatus))
             self.Thread_curBoard.start()
 
+        if warning: self.displaymsg(warning, False)
 
     #----------------------------------------------------------------------
     def OnVerify(self, event=None):
